@@ -472,8 +472,10 @@ def main(args):
                 if pipeline is None:
                     pipeline = StableDiffusionPipeline.from_pretrained(
                         args.pretrained_model_name_or_path,
+                        local_files_only=True,
                         vae=AutoencoderKL.from_pretrained(
                             args.pretrained_vae_name_or_path or args.pretrained_model_name_or_path,
+                            local_files_only=True,
                             subfolder=None if args.pretrained_vae_name_or_path else "vae",
                             revision=None if args.pretrained_vae_name_or_path else args.revision,
                             torch_dtype=torch_dtype
@@ -518,11 +520,13 @@ def main(args):
     if args.tokenizer_name:
         tokenizer = CLIPTokenizer.from_pretrained(
             args.tokenizer_name,
+            local_files_only=True,
             revision=args.revision,
         )
     elif args.pretrained_model_name_or_path:
         tokenizer = CLIPTokenizer.from_pretrained(
             args.pretrained_model_name_or_path,
+            local_files_only=True,
             subfolder="tokenizer",
             revision=args.revision,
         )
@@ -530,16 +534,19 @@ def main(args):
     # Load models and create wrapper for stable diffusion
     text_encoder = CLIPTextModel.from_pretrained(
         args.pretrained_model_name_or_path,
+        local_files_only=True,
         subfolder="text_encoder",
         revision=args.revision,
     )
     vae = AutoencoderKL.from_pretrained(
         args.pretrained_model_name_or_path,
+        local_files_only=True,
         subfolder="vae",
         revision=args.revision,
     )
     unet = UNet2DConditionModel.from_pretrained(
         args.pretrained_model_name_or_path,
+        local_files_only=True,
         subfolder="unet",
         revision=args.revision,
         torch_dtype=torch.float32
@@ -719,13 +726,15 @@ def main(args):
             if args.train_text_encoder:
                 text_enc_model = accelerator.unwrap_model(text_encoder, keep_fp32_wrapper=True)
             else:
-                text_enc_model = CLIPTextModel.from_pretrained(args.pretrained_model_name_or_path, subfolder="text_encoder", revision=args.revision)
+                text_enc_model = CLIPTextModel.from_pretrained(args.pretrained_model_name_or_path, local_files_only=True, subfolder="text_encoder", revision=args.revision)
             pipeline = StableDiffusionPipeline.from_pretrained(
                 args.pretrained_model_name_or_path,
+                local_files_only=True,
                 unet=accelerator.unwrap_model(unet, keep_fp32_wrapper=True),
                 text_encoder=text_enc_model,
                 vae=AutoencoderKL.from_pretrained(
                     args.pretrained_vae_name_or_path or args.pretrained_model_name_or_path,
+                    local_files_only=True,
                     subfolder=None if args.pretrained_vae_name_or_path else "vae",
                     revision=None if args.pretrained_vae_name_or_path else args.revision,
                 ),
